@@ -1,0 +1,1 @@
+{"version":3,"file":"worldwide.d.ts","sourceRoot":"","sources":["../../../src/js/utils/worldwide.ts"],"names":[],"mappings":"AAAA,OAAO,EAAc,cAAc,EAAE,MAAM,eAAe,CAAC;AAE3D,kFAAkF;AAClF,MAAM,WAAW,yBAA0B,SAAQ,cAAc;IAC/D,yBAAyB,CAAC,EAAE,OAAO,CAAC;IACpC,yBAAyB,CAAC,EAAE,OAAO,CAAC;IACpC,cAAc,EAAE,OAAO,CAAC;IACxB,OAAO,EAAE,OAAO,CAAC;CAClB;AAED,iEAAiE;AACjE,eAAO,MAAM,aAAa,2BAA0C,CAAC"}
