@@ -40,6 +40,7 @@ interface SentryNativeWrapper {
   isNativeTransportAvailable(): boolean;
 
   initNativeSdk(options: ReactNativeOptions): PromiseLike<boolean>;
+  didCrashLastLaunch(): PromiseLike<boolean>;
   closeNativeSdk(): PromiseLike<void>;
 
   sendEvent(event: Event): PromiseLike<Response>;
@@ -457,6 +458,21 @@ export const NATIVE: SentryNativeWrapper = {
       this.enableNative = false;
     });
   },
+
+  /**
+   * Returns whether or not the last run resulted in a crash.
+   */
+  async didCrashLastLaunch(): Promise<boolean> {
+      if (!this.enableNative) {
+          return false;
+      }
+      if (!this._isModuleLoaded(RNSentry)) {
+          return false;
+      }
+
+      const didCrashLastLaunch = await RNSentry.didCrashLastLaunch();
+      return didCrashLastLaunch;
+},
 
   disableNativeFramesTracking(): void {
     if (!this.enableNative) {
