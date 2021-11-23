@@ -103,6 +103,13 @@ export class ReactNativeClient extends BaseClient<ReactNativeClientOptions> {
   }
 
   /**
+   * Returns whether or not the last run resulted in a crash.
+   */
+  public didCrashLastLaunch(): PromiseLike<boolean> {
+    return NATIVE.didCrashLastLaunch().then((result: boolean) => result) as PromiseLike<boolean>;
+}
+
+  /**
    * @inheritDoc
    */
   public close(): PromiseLike<boolean> {

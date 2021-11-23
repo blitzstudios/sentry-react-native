@@ -65,6 +65,7 @@ export {
   // eslint-disable-next-line deprecation/deprecation
   setRelease,
   nativeCrash,
+  didCrashLastLaunch,
   flush,
   close,
   captureUserFeedback,

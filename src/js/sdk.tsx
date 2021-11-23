@@ -209,6 +209,23 @@ export function nativeCrash(): void {
 }
 
 /**
+ * Returns whether or not the last run resulted in a crash.
+ */
+export async function didCrashLastLaunch(): Promise<boolean> {
+  try {
+    const client = getCurrentHub().getClient<ReactNativeClient>();
+    if (client) {
+      const result = await client.didCrashLastLaunch();
+      return result;
+    }
+  } catch (_) {}
+
+  logger.error("Failed to check if app crashed last launch.");
+
+  return false;
+}
+
+/**
  * Flushes all pending events in the queue to disk.
  * Use this before applying any realtime updates such as code-push or expo updates.
  */

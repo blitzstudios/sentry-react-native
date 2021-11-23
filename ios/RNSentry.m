@@ -435,6 +435,16 @@ RCT_EXPORT_METHOD(closeNativeSdk:(RCTPromiseResolveBlock)resolve
   resolve(@YES);
 }
 
+RCT_EXPORT_METHOD(didCrashLastLaunch:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    if ([SentrySDK crashedLastRun]) {
+        resolve(@YES);
+    } else {
+        resolve(@NO);
+    }
+}
+
 RCT_EXPORT_METHOD(disableNativeFramesTracking)
 {
     // Do nothing on iOS, this bridge method only has an effect on android.
