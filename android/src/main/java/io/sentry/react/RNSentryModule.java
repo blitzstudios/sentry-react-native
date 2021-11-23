@@ -320,6 +320,15 @@ public class RNSentryModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
+    public void didCrashLastLaunch(Promise promise) {
+        try {
+            promise.resolve(Sentry.isCrashedLastRun());
+        } catch (Exception e) {
+            promise.reject(e);
+        }
+    }
+
     private static PackageInfo getPackageInfo(Context ctx) {
         try {
             return ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
