@@ -68,6 +68,8 @@ export {
   setRelease,
   nativeCrash,
   didCrashLastLaunch,
+  getBreadcrumbs,
+  clearBreadcrumbs,
   flush,
   close,
 } from './sdk';

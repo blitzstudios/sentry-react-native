@@ -1,4 +1,5 @@
 import { BaseClient } from '@sentry/core';
+import { Breadcrumb } from '@sentry/types';
 
 import { ReactNativeBackend } from './backend';
 import { ReactNativeOptions } from './options';
@@ -35,7 +36,22 @@ export class ReactNativeClient extends BaseClient<
    */
   public didCrashLastLaunch(): PromiseLike<boolean> {
     return NATIVE.didCrashLastLaunch().then((result: boolean) => result) as PromiseLike<boolean>;
-}
+  }
+
+  /**
+   *
+   * @returns The last 100 breadcrumbs tracked on device.
+   */
+  public getBreadcrumbs(): PromiseLike<Breadcrumb[]> {
+    return NATIVE.getBreadcrumbs().then((result) => result);
+  }
+
+  /**
+   * Clears all current breadcrumbs on the native client.
+   */
+  public clearBreadcrumbs(): void {
+    NATIVE.clearBreadcrumbs();
+  }
 
   /**
    * @inheritDoc

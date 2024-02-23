@@ -40,6 +40,7 @@ interface SentryNativeWrapper {
 
   initNativeSdk(options: ReactNativeOptions): PromiseLike<boolean>;
   didCrashLastLaunch(): PromiseLike<boolean>;
+  getBreadcrumbs(): PromiseLike<Breadcrumb[]>;
   closeNativeSdk(): PromiseLike<void>;
 
   sendEvent(event: Event): PromiseLike<Response>;
@@ -469,6 +470,22 @@ export const NATIVE: SentryNativeWrapper = {
 
       const didCrashLastLaunch = await RNSentry.didCrashLastLaunch();
       return didCrashLastLaunch;
+  },
+
+  /**
+   *
+   * @returns Breadcrumbs from the native scope.
+   */
+  async getBreadcrumbs(): Promise<Breadcrumb[]> {
+    if (!this.enableNative) {
+        return [];
+    }
+    if (!this._isModuleLoaded(RNSentry)) {
+        return [];
+    }
+
+    const breadcrumbs = await RNSentry.getBreadcrumbs();
+    return breadcrumbs;
 },
 
   disableNativeFramesTracking(): void {

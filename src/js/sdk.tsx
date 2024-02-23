@@ -2,7 +2,7 @@ import { initAndBind, setExtra } from '@sentry/core';
 import { Hub, makeMain } from '@sentry/hub';
 import { RewriteFrames } from '@sentry/integrations';
 import { defaultIntegrations, getCurrentHub } from '@sentry/react';
-import { StackFrame } from '@sentry/types';
+import { Breadcrumb, StackFrame } from '@sentry/types';
 import { getGlobalObject, logger } from '@sentry/utils';
 import * as React from 'react';
 
@@ -182,9 +182,36 @@ export async function didCrashLastLaunch(): Promise<boolean> {
     }
   } catch (_) {}
 
-  logger.error("Failed to check if app crashed last launch.");
+  logger.error('Failed to check if app crashed last launch.');
 
   return false;
+}
+
+/**
+ *
+ */
+export async function getBreadcrumbs(): Promise<Breadcrumb[]> {
+  try {
+    const client = getCurrentHub().getClient<ReactNativeClient>();
+    if (client) {
+      const result = await client.getBreadcrumbs();
+      return result;
+    }
+  } catch (_) {}
+
+  logger.error('Failed to read breadcrumbs from device.');
+
+  return [];
+}
+
+/**
+ *
+ */
+export function clearBreadcrumbs(): void {
+  const client = getCurrentHub().getClient<ReactNativeClient>();
+  if (client) {
+    client.clearBreadcrumbs();
+  }
 }
 
 /**

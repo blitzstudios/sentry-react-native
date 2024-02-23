@@ -329,6 +329,29 @@ public class RNSentryModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
+    public void getBreadcrumbs(Promise promise) {
+      try {
+          Sentry.configureScope(scope -> {
+              List<Breadcrumb> breadcrumbs = scope.getBreadcrumbs();
+              ArrayList<Map<String, Object>> breadcrumbsArray = new ArrayList<>();
+
+              for (Breadcrumb breadcrumb : breadcrumbs) {
+                  Map<String, Object> breadcrumbDict = new HashMap<>();
+                  breadcrumbDict.put("message", breadcrumb.getMessage() != null ? breadcrumb.getMessage() : null);
+                  breadcrumbDict.put("category", breadcrumb.getCategory() != null ? breadcrumb.getCategory() : null);
+                  breadcrumbDict.put("type", breadcrumb.getType() != null ? breadcrumb.getType().name() : null);
+
+                  breadcrumbsArray.add(breadcrumbDict);
+              }
+
+              promise.resolve(breadcrumbsArray);
+          });
+      } catch (Exception e) {
+          promise.reject(e);
+      }
+    }
+
     private static PackageInfo getPackageInfo(Context ctx) {
         try {
             return ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);

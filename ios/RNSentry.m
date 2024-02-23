@@ -420,6 +420,26 @@ RCT_EXPORT_METHOD(didCrashLastLaunch:(RCTPromiseResolveBlock)resolve
     }
 }
 
+RCT_EXPORT_METHOD(getBreadcrumbs:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [SentrySDK configureScope:^(SentryScope * _Nonnull scope) {
+        NSArray<SentryBreadcrumb *> *breadcrumbs = [scope breadcrumbs];
+        NSMutableArray *breadcrumbsArray = [NSMutableArray arrayWithCapacity:[breadcrumbs count]];
+
+        for (SentryBreadcrumb *breadcrumb in breadcrumbs) {
+            NSDictionary *breadcrumbDict = @{
+                @"message": breadcrumb.message ?: [NSNull null],
+                @"category": breadcrumb.category ?: [NSNull null],
+                @"type": breadcrumb.type ?: [NSNull null],
+            };
+            [breadcrumbsArray addObject:breadcrumbDict];
+        }
+
+        resolve(breadcrumbsArray);
+    }];
+}
+
 RCT_EXPORT_METHOD(disableNativeFramesTracking)
 {
     // Do nothing on iOS, this bridge method only has an effect on android.
