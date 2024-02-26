@@ -340,7 +340,9 @@ public class RNSentryModule extends ReactContextBaseJavaModule {
                   Map<String, Object> breadcrumbDict = new HashMap<>();
                   breadcrumbDict.put("message", breadcrumb.getMessage() != null ? breadcrumb.getMessage() : null);
                   breadcrumbDict.put("category", breadcrumb.getCategory() != null ? breadcrumb.getCategory() : null);
-                  breadcrumbDict.put("type", breadcrumb.getType() != null ? breadcrumb.getType().name() : null);
+                  breadcrumbDict.put("type", breadcrumb.getType() != null ? breadcrumb.getType() : null);
+                  breadcrumbDict.put("data", breadcrumb.getData() != null ? breadcrumb.getData() : null);
+                  breadcrumbDict.put("level", breadcrumb.getLevel() != null ? breadcrumb.getLevel() : null);
 
                   breadcrumbsArray.add(breadcrumbDict);
               }

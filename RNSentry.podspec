@@ -7,8 +7,8 @@ Pod::Spec.new do |s|
   s.license        = 'MIT'
   s.summary        = 'Official Sentry SDK for react-native'
   s.author         = 'Sentry'
-  s.homepage       = "https://github.com/getsentry/sentry-react-native"
-  s.source         = { :git => 'https://github.com/getsentry/sentry-react-native.git', :tag => "#{s.version}"}
+  s.homepage       = "https://github.com/blitzstudios/sentry-react-native"
+  s.source         = { :git => 'https://github.com/blitzstudios/sentry-react-native.git', :branch => 'release/1.5'}
 
   s.ios.deployment_target = "8.0"
   s.osx.deployment_target = "10.10"

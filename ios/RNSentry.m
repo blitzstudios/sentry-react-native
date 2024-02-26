@@ -60,8 +60,13 @@ RCT_EXPORT_METHOD(initNativeSdk:(NSDictionary *_Nonnull)options
         return event;
     };
 
+    SentryBeforeBreadcrumbCallback beforeBreadcrumb = ^SentryBreadcrumb*(SentryBreadcrumb *breadcrumb) {
+        return nil;
+    };
+
     NSMutableDictionary * mutableOptions =[options mutableCopy];
     [mutableOptions setValue:beforeSend forKey:@"beforeSend"];
+    [mutableOptions setValue:beforeBreadcrumb forKey:@"beforeBreadcrumb"];
 
     // remove performance traces sample rate and traces sampler since we don't want to synchronize these configurations
     // to the Native SDKs.
@@ -432,6 +437,8 @@ RCT_EXPORT_METHOD(getBreadcrumbs:(RCTPromiseResolveBlock)resolve
                 @"message": breadcrumb.message ?: [NSNull null],
                 @"category": breadcrumb.category ?: [NSNull null],
                 @"type": breadcrumb.type ?: [NSNull null],
+                @"data": breadcrumb.data ?: [NSNull null],
+                @"level": @(breadcrumb.level).stringValue,
             };
             [breadcrumbsArray addObject:breadcrumbDict];
         }
