@@ -11,6 +11,7 @@ import {
 import {
   EventProcessor,
   Integration,
+  Severity,
   Transaction as TransactionType,
   TransactionContext,
 } from '@sentry/types';
@@ -332,6 +333,7 @@ export class ReactNativeTracing implements Integration {
             from: contextData.previousRoute?.name,
             to: contextData.route.name,
           },
+          level: Severity.Info
         });
       }
 
