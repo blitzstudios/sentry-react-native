@@ -16,6 +16,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.module.annotations.ReactModule;
 
@@ -30,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -337,34 +339,54 @@ public class RNSentryModule extends ReactContextBaseJavaModule {
         try {
             Sentry.configureScope(scope -> {
                 try {
-                    // Reflection to access the private method
                     Method getBreadcrumbsMethod = scope.getClass().getDeclaredMethod("getBreadcrumbs");
-                    getBreadcrumbsMethod.setAccessible(true); // Make the method accessible
+                    getBreadcrumbsMethod.setAccessible(true);
 
-                    // Invoke the method and cast the result
                     @SuppressWarnings("unchecked")
-                    List<Breadcrumb> breadcrumbs = (List<Breadcrumb>) getBreadcrumbsMethod.invoke(scope);
+                    Queue<Breadcrumb> breadcrumbs = (Queue<Breadcrumb>) getBreadcrumbsMethod.invoke(scope);
 
-                    ArrayList<Map<String, Object>> breadcrumbsArray = new ArrayList<>();
+                    WritableArray breadcrumbsArray = Arguments.createArray();
                     for (Breadcrumb breadcrumb : breadcrumbs) {
-                        Map<String, Object> breadcrumbDict = new HashMap<>();
-                        breadcrumbDict.put("message", breadcrumb.getMessage());
-                        breadcrumbDict.put("category", breadcrumb.getCategory());
-                        breadcrumbDict.put("type", breadcrumb.getType());
-                        breadcrumbDict.put("data", breadcrumb.getData());
-                        breadcrumbDict.put("level", breadcrumb.getLevel());
+                        WritableMap breadcrumbDict = Arguments.createMap();
+                        breadcrumbDict.putString("message", breadcrumb.getMessage());
+                        breadcrumbDict.putString("category", breadcrumb.getCategory());
+                        breadcrumbDict.putString("type", breadcrumb.getType());
+                        breadcrumbDict.putMap("data", convertMapToWritableMap(breadcrumb.getData()));
+                        breadcrumbDict.putString("level", breadcrumb.getLevel() != null ? breadcrumb.getLevel().toString() : null);
 
-                        breadcrumbsArray.add(breadcrumbDict);
+                        breadcrumbsArray.pushMap(breadcrumbDict);
                     }
 
                     promise.resolve(breadcrumbsArray);
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                    promise.reject("Reflection error", "Failed to access getBreadcrumbs method: " + e.getMessage());
+                    promise.reject("Reflection error", e.getMessage());
                 }
             });
         } catch (Exception e) {
-            promise.reject("General error", "An error occurred: " + e.getMessage());
+            promise.reject("General error", e.getMessage());
         }
+    }
+
+    private WritableMap convertMapToWritableMap(Map<String, Object> map) {
+        WritableMap writableMap = Arguments.createMap();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof String) {
+                writableMap.putString(entry.getKey(), (String) value);
+            } else if (value instanceof Boolean) {
+                writableMap.putBoolean(entry.getKey(), (Boolean) value);
+            } else if (value instanceof Double) {
+                writableMap.putDouble(entry.getKey(), (Double) value);
+            } else if (value instanceof Integer) {
+                writableMap.putInt(entry.getKey(), (Integer) value);
+            } else if (value instanceof Map) {
+                writableMap.putMap(entry.getKey(), convertMapToWritableMap((Map<String, Object>) value));
+            } else if (value == null) {
+                writableMap.putNull(entry.getKey());
+            }
+            // Add other types as necessary
+        }
+        return writableMap;
     }
 
     private static PackageInfo getPackageInfo(Context ctx) {
