@@ -22,7 +22,10 @@ import com.facebook.react.module.annotations.ReactModule;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -331,27 +334,37 @@ public class RNSentryModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void getBreadcrumbs(Promise promise) {
-      try {
-          Sentry.configureScope(scope -> {
-              List<Breadcrumb> breadcrumbs = scope.getBreadcrumbs();
-              ArrayList<Map<String, Object>> breadcrumbsArray = new ArrayList<>();
+        try {
+            Sentry.configureScope(scope -> {
+                try {
+                    // Reflection to access the private method
+                    Method getBreadcrumbsMethod = scope.getClass().getDeclaredMethod("getBreadcrumbs");
+                    getBreadcrumbsMethod.setAccessible(true); // Make the method accessible
 
-              for (Breadcrumb breadcrumb : breadcrumbs) {
-                  Map<String, Object> breadcrumbDict = new HashMap<>();
-                  breadcrumbDict.put("message", breadcrumb.getMessage() != null ? breadcrumb.getMessage() : null);
-                  breadcrumbDict.put("category", breadcrumb.getCategory() != null ? breadcrumb.getCategory() : null);
-                  breadcrumbDict.put("type", breadcrumb.getType() != null ? breadcrumb.getType() : null);
-                  breadcrumbDict.put("data", breadcrumb.getData() != null ? breadcrumb.getData() : null);
-                  breadcrumbDict.put("level", breadcrumb.getLevel() != null ? breadcrumb.getLevel() : null);
+                    // Invoke the method and cast the result
+                    @SuppressWarnings("unchecked")
+                    List<Breadcrumb> breadcrumbs = (List<Breadcrumb>) getBreadcrumbsMethod.invoke(scope);
 
-                  breadcrumbsArray.add(breadcrumbDict);
-              }
+                    ArrayList<Map<String, Object>> breadcrumbsArray = new ArrayList<>();
+                    for (Breadcrumb breadcrumb : breadcrumbs) {
+                        Map<String, Object> breadcrumbDict = new HashMap<>();
+                        breadcrumbDict.put("message", breadcrumb.getMessage());
+                        breadcrumbDict.put("category", breadcrumb.getCategory());
+                        breadcrumbDict.put("type", breadcrumb.getType());
+                        breadcrumbDict.put("data", breadcrumb.getData());
+                        breadcrumbDict.put("level", breadcrumb.getLevel());
 
-              promise.resolve(breadcrumbsArray);
-          });
-      } catch (Exception e) {
-          promise.reject(e);
-      }
+                        breadcrumbsArray.add(breadcrumbDict);
+                    }
+
+                    promise.resolve(breadcrumbsArray);
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                    promise.reject("Reflection error", "Failed to access getBreadcrumbs method: " + e.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("General error", "An error occurred: " + e.getMessage());
+        }
     }
 
     private static PackageInfo getPackageInfo(Context ctx) {
