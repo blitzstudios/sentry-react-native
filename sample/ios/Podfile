@@ -17,8 +17,6 @@ target 'sample' do
     pod 'RNSentry', :path => '../../RNSentry.podspec'
   end
 
-  pod 'Sentry', :git => 'https://github.com/blitzstudios/sentry-cocoa.git', :branch => 'release/1.0'
-
   target 'sampleTests' do
     inherit! :complete
     # Pods for testing

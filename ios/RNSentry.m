@@ -429,21 +429,27 @@ RCT_EXPORT_METHOD(getBreadcrumbs:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
     [SentrySDK configureScope:^(SentryScope * _Nonnull scope) {
-        NSArray<SentryBreadcrumb *> *breadcrumbs = [scope breadcrumbs];
-        NSMutableArray *breadcrumbsArray = [NSMutableArray arrayWithCapacity:[breadcrumbs count]];
+        @try {
+            NSArray<SentryBreadcrumb *> *breadcrumbs = [scope valueForKey:@"breadcrumbs"];
+            NSMutableArray *breadcrumbsArray = [NSMutableArray arrayWithCapacity:[breadcrumbs count]];
 
-        for (SentryBreadcrumb *breadcrumb in breadcrumbs) {
-            NSDictionary *breadcrumbDict = @{
-                @"message": breadcrumb.message ?: [NSNull null],
-                @"category": breadcrumb.category ?: [NSNull null],
-                @"type": breadcrumb.type ?: [NSNull null],
-                @"data": breadcrumb.data ?: [NSNull null],
-                @"level": @(breadcrumb.level).stringValue,
-            };
-            [breadcrumbsArray addObject:breadcrumbDict];
+            for (SentryBreadcrumb *breadcrumb in breadcrumbs) {
+                NSDictionary *breadcrumbDict = @{
+                    @"message": breadcrumb.message ?: [NSNull null],
+                    @"category": breadcrumb.category ?: [NSNull null],
+                    @"type": breadcrumb.type ?: [NSNull null],
+                    @"data": breadcrumb.data ?: [NSNull null],
+                    @"level": @(breadcrumb.level).stringValue,
+                };
+                [breadcrumbsArray addObject:breadcrumbDict];
+            }
+
+            resolve(breadcrumbsArray);
         }
-
-        resolve(breadcrumbsArray);
+        @catch (NSException *exception) {
+            // Handle the error if the property is not accessible.
+            reject(@"error", @"Unable to access breadcrumbs", nil);
+        }
     }];
 }
 
